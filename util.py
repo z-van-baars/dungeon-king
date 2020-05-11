@@ -11,9 +11,9 @@ def get_pixel_coords(x_tile, y_tile):
     return (int(x), int(y))
 
 
-def get_map_coords(pos, x_shift, y_shift, background_x_middle):
+def get_map_coords(pos, x_shift, y_shift, background_x_middle, render_size):
     x_true = (pos[0] - x_shift) - (background_x_middle - x_shift)
     y_true = pos[1] - y_shift
-    x = (x_true / tile_width / 2 + y_true / tile_height / 2) / 2
-    y = (y_true / tile_height / 2 - x_true / tile_width / 2) / 2
+    x = (x_true / render_size / tile_width / 2 + y_true / render_size / tile_height / 2) / 2
+    y = (y_true / render_size / tile_height / 2 - x_true / render_size / tile_width / 2) / 2
     return (int(x), int(y))

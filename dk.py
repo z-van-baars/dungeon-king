@@ -1,12 +1,14 @@
 import pygame as pg
 import pygame.gfxdraw
 import math
+import random
 import util
 from util import tile_width, tile_height
 
 
 pg.display.init()
 pg.display.set_caption("Dungeon King - v0.1.0")
+pg.display.set_mode([0, 0])
 
 
 class Colors(object):
@@ -23,6 +25,9 @@ class Colors(object):
 
 
 colors = Colors()
+trees = pg.image.load("art/trees.png").convert_alpha()
+trees.set_colorkey(colors.key)
+trees = trees.convert_alpha()
 
 
 class GameState(object):
@@ -88,6 +93,10 @@ class GameMap(object):
                 terrain_display_layer.image.blit(
                     tile.image,
                     [x + background_x_middle, y])
+                if random.randint(1, 100) > 66:
+                    terrain_display_layer.image.blit(
+                        trees,
+                        [x + background_x_middle, y - 81])
 
         terrain_display_layer.image.set_colorkey(colors.key)
         terrain_display_layer.image = (
@@ -129,16 +138,28 @@ def start_new_game(screen_dimensions, map_size):
 
 def display_update(screen, map_image, scroll_x, scroll_y, clock, render_size):
     screen.fill(colors.background)
-    screen.blit(pg.transform.smoothscale(
-        map_image,
-        (int(map_image.get_width() / render_size),
-         int(map_image.get_height() / render_size))), [scroll_x / render_size, scroll_y / render_size])
+    if render_size == 0.5:
+        scaled_map_image = pg.transform.scale2x(map_image)
+    else:
+        scaled_map_image = pg.transform.smoothscale(
+            map_image,
+            (int(map_image.get_width() / render_size),
+             int(map_image.get_height() / render_size)))
+    screen.blit(
+        scaled_map_image,
+        [scroll_x / render_size,
+         scroll_y / render_size])
     pg.display.flip()
     clock.tick(60)
 
 
-def left_click():
-    pass
+def left_click(state, pos):
+    print(util.get_map_coords(
+        pos,
+        state.scroll_x,
+        state.scroll_y,
+        int(state.game_map.terrain_display_layer.image.get_width() / 2),
+        state.render_size))
 
 
 def scroll_click(state, pos):
@@ -165,7 +186,7 @@ def scroll_down_click(state):
 
 def mousedown_handler(state, event, pos):
     if event.button == 1:
-        left_click()
+        left_click(state, pos)
     elif event.button == 2:
         scroll_click(state, pos)
     elif event.button == 3:
